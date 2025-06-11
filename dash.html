@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Projetos - Maquete Visual com Gráficos</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Biblioteca de Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Fonte Inter do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Paleta de Cores e Fontes do Projeto */
+        const themeColors = {
+            primary: { '600': '#2563eb', '700': '#1d4ed8' },
+            success: '#10b981',
+            warning: '#f59e0b',
+            error:   '#ef4444',
+            pageBg:  '#f9fafb',
+            cardBg:  '#ffffff',
+            chart:   ['#2563EB', '#7C3AED', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#8B5CF6', '#F97316', '#14B8A6']
+        };
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: themeColors.pageBg;
+        }
+        .kanban-column-content::-webkit-scrollbar { width: 6px; }
+        .kanban-column-content::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .kanban-column-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .kanban-column-content::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .timeline-item:not(:last-child) .timeline-line { height: 100%; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" class="p-4 sm:p-6 lg:p-8">
+        <main class="max-w-screen-2xl mx-auto">
+            <!-- SEÇÃO 1: CABEÇALHO E FILTROS -->
+            <header class="mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Painel de Gestão de Projetos</h1>
+                        <p class="text-gray-500 mt-1">Status de todas as iniciativas departamentais.</p>
+                    </div>
+                    <button class="bg-[#2563eb] text-white font-bold py-2 px-4 rounded-lg flex items-center hover:bg-[#1d4ed8] transition-colors mt-4 sm:mt-0 shadow-md">
+                        <i data-lucide="plus" class="mr-2 h-5 w-5"></i>
+                        Novo Projeto
+                    </button>
+                </div>
+                <section class="bg-white p-4 rounded-xl shadow-md flex flex-col lg:flex-row gap-4 items-center">
+                    <div class="relative flex-grow w-full">
+                        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5"></i>
+                        <input type="text" placeholder="Buscar por Projeto..." class="w-full bg-gray-100 rounded-lg py-2.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-[#2563eb]">
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                        <select class="appearance-none w-full lg:w-auto bg-gray-100 rounded-lg py-2.5 px-4 pr-8 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold cursor-pointer">
+                            <option>Todas as Áreas</option><option>TI</option><option>Marketing</option><option>Vendas</option><option>RH</option><option>Sucesso do Cliente</option>
+                        </select>
+                         <select class="appearance-none w-full lg:w-auto bg-gray-100 rounded-lg py-2.5 px-4 pr-8 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold cursor-pointer">
+                            <option>Todos Solicitantes</option><option>Ana Silva</option><option>Carlos Lima</option><option>Beatriz Costa</option>
+                        </select>
+                         <select class="appearance-none w-full lg:w-auto bg-gray-100 rounded-lg py-2.5 px-4 pr-8 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold cursor-pointer">
+                            <option>Qualquer Prioridade</option><option>Crítica</option><option>Alta</option><option>Média</option><option>Baixa</option>
+                        </select>
+                    </div>
+                </section>
+            </header>
+            
+            <!-- SEÇÃO 2: WIDGETS DE RESUMO (KPIs) -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-emerald-100 rounded-lg mr-4 text-[#10b981]"><i data-lucide="bar-chart-2" class="h-7 w-7"></i></div>
+                    <div><p class="text-sm text-gray-500">Projetos Ativos</p><p class="text-3xl font-extrabold text-gray-800">9</p></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-amber-100 rounded-lg mr-4 text-[#f59e0b]"><i data-lucide="inbox" class="h-7 w-7"></i></div>
+                    <div><p class="text-sm text-gray-500">Na Fila</p><p class="text-3xl font-extrabold text-gray-800">2</p></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-purple-100 rounded-lg mr-4 text-[#7C3AED]"><i data-lucide="lightbulb" class="h-7 w-7"></i></div>
+                    <div><p class="text-sm text-gray-500">Em Ideação</p><p class="text-3xl font-extrabold text-gray-800">2</p></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-red-100 rounded-lg mr-4 text-[#ef4444]"><i data-lucide="alert-triangle" class="h-7 w-7"></i></div>
+                    <div><p class="text-sm text-gray-500">Em Risco</p><p class="text-3xl font-extrabold text-gray-800">1</p></div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 3: MÉTRICAS DE TEMPO MÉDIO -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-4 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-purple-100 rounded-lg mr-4 text-[#7C3AED]"><i data-lucide="hourglass" class="h-6 w-6"></i></div>
+                    <div><p class="text-sm text-gray-500">Tempo Médio em Ideação</p><p class="text-xl font-bold text-gray-800">9 dias</p></div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg mr-4 text-[#2563eb]"><i data-lucide="hourglass" class="h-6 w-6"></i></div>
+                    <div><p class="text-sm text-gray-500">Tempo Médio em Análise</p><p class="text-xl font-bold text-gray-800">15 dias</p></div>
+                </div>
+                 <div class="bg-white p-4 rounded-xl shadow-md flex items-center">
+                    <div class="p-3 bg-amber-100 rounded-lg mr-4 text-[#f59e0b]"><i data-lucide="hourglass" class="h-6 w-6"></i></div>
+                    <div><p class="text-sm text-gray-500">Tempo Médio na Fila</p><p class="text-xl font-bold text-gray-800">9 dias</p></div>
+                </div>
+            </section>
+            
+            <!-- SEÇÃO 4: ANÁLISE GRÁFICA -->
+            <section class="mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Projetos por Departamento</h3>
+                        <canvas id="departmentChart" class="max-h-64"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Status Geral dos Projetos</h3>
+                        <canvas id="statusChart" class="max-h-64"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Projetos por Prioridade</h3>
+                        <canvas id="priorityChart" class="max-h-64"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 5: PRÓXIMOS PARA EXECUÇÃO -->
+            <section class="mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Próximos para Execução</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-[#f59e0b] hover:shadow-lg transition-shadow"><span class="text-xs font-bold text-amber-600">#1 NA FILA</span><p class="font-bold text-gray-800 mt-1">Novo Módulo de Relatórios</p><p class="text-sm text-gray-500">TI</p><p class="text-xs text-gray-400 mt-2">Pronto em: 30/05/2025</p></div>
+                    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-[#f59e0b] hover:shadow-lg transition-shadow"><span class="text-xs font-bold text-amber-600">#2 NA FILA</span><p class="font-bold text-gray-800 mt-1">Campanha de Marketing Q3</p><p class="text-sm text-gray-500">Marketing</p><p class="text-xs text-gray-400 mt-2">Pronto em: 05/06/2025</p></div>
+                    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-[#f59e0b] hover:shadow-lg transition-shadow"><span class="text-xs font-bold text-amber-600">#3 NA FILA</span><p class="font-bold text-gray-800 mt-1">Otimização da API</p><p class="text-sm text-gray-500">TI</p><p class="text-xs text-gray-400 mt-2">Pronto em: 10/06/2025</p></div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 6: PAINEL KANBAN -->
+            <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                 <!-- Colunas Kanban -->
+                <div class="bg-gray-200/60 rounded-xl flex flex-col h-[60vh]"><h3 class="font-bold text-gray-700 p-4 flex justify-between items-center border-b-4 border-purple-300"><span>Ideação/Brainstorm</span><span class="bg-purple-200 text-purple-800 text-sm font-bold px-2.5 py-1 rounded-full">2</span></h3><div class="p-3 overflow-y-auto kanban-column-content"><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('ideation')"><p class="font-bold text-sm text-gray-800 mb-2">Implementar IA para Suporte</p><p class="text-xs text-gray-500 mb-3">Sucesso do Cliente</p><p class="text-xs text-gray-400 mb-3">Criado em: 26/05/2025</p><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">Alta</span><div class="flex items-center text-xs font-bold text-[#f59e0b]"><i data-lucide="clock" class="h-3 w-3 mr-1.5"></i> Há 16 dias</div></div></div><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('ideation')"><p class="font-bold text-sm text-gray-800 mb-2">Renovar Onboarding</p><p class="text-xs text-gray-500 mb-3">RH</p><p class="text-xs text-gray-400 mb-3">Criado em: 09/06/2025</p><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-800">Baixa</span><div class="flex items-center text-xs text-gray-500 font-medium"><i data-lucide="clock" class="h-3 w-3 mr-1.5"></i> Há 2 dias</div></div></div></div></div>
+                <div class="bg-gray-200/60 rounded-xl flex flex-col h-[60vh]"><h3 class="font-bold text-gray-700 p-4 flex justify-between items-center border-b-4 border-blue-300"><span>Em Análise</span><span class="bg-blue-200 text-blue-800 text-sm font-bold px-2.5 py-1 rounded-full">2</span></h3><div class="p-3 overflow-y-auto kanban-column-content"><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('analysis')"><p class="font-bold text-sm text-gray-800 mb-2">Redesign da Página de Preços</p><p class="text-xs text-gray-500 mb-3">Marketing</p><div class="text-xs text-gray-400 mb-3 space-y-1"><p>Criado em: 10/05/2025</p><p>Análise em: 17/05/2025</p></div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">Alta</span><div class="flex items-center text-xs font-bold text-[#ef4444]"><i data-lucide="clock" class="h-3 w-3 mr-1.5"></i> Em análise há 25 dias</div></div></div><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('analysis')"><p class="font-bold text-sm text-gray-800 mb-2">Pesquisa de Satisfação</p><p class="text-xs text-gray-500 mb-3">Sucesso do Cliente</p><div class="text-xs text-gray-400 mb-3 space-y-1"><p>Criado em: 01/06/2025</p><p>Análise em: 06/06/2025</p></div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Média</span><div class="flex items-center text-xs text-gray-500 font-medium"><i data-lucide="clock" class="h-3 w-3 mr-1.5"></i> Em análise há 5 dias</div></div></div></div></div>
+                <div class="bg-gray-200/60 rounded-xl flex flex-col h-[60vh]"><h3 class="font-bold text-gray-700 p-4 flex justify-between items-center border-b-4 border-[#f59e0b]"><span>Pronto para Execução</span><span class="bg-amber-200 text-amber-800 text-sm font-bold px-2.5 py-1 rounded-full">2</span></h3><div class="p-3 overflow-y-auto kanban-column-content"><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('ready')"><p class="font-bold text-sm text-gray-800 mb-2">Novo Módulo de Relatórios</p><p class="text-xs text-gray-500 mb-3">TI</p><div class="text-xs text-gray-400 mb-3 space-y-1"><p>Criado em: 20/04/2025</p><p>Pronto em: 30/05/2025</p></div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">Alta</span><div class="flex items-center text-xs text-gray-500 font-medium"><i data-lucide="inbox" class="h-3 w-3 mr-1.5"></i> Na fila há 12 dias</div></div></div><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('ready')"><p class="font-bold text-sm text-gray-800 mb-2">Campanha de Marketing Q3</p><p class="text-xs text-gray-500 mb-3">Marketing</p><div class="text-xs text-gray-400 mb-3 space-y-1"><p>Criado em: 15/05/2025</p><p>Pronto em: 05/06/2025</p></div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Média</span><div class="flex items-center text-xs text-gray-500 font-medium"><i data-lucide="inbox" class="h-3 w-3 mr-1.5"></i> Na fila há 6 dias</div></div></div></div></div>
+                <div class="bg-gray-200/60 rounded-xl flex flex-col h-[60vh]"><h3 class="font-bold text-gray-700 p-4 flex justify-between items-center border-b-4 border-[#10b981]"><span>Em Andamento</span><span class="bg-emerald-200 text-emerald-800 text-sm font-bold px-2.5 py-1 rounded-full">2</span></h3><div class="p-3 overflow-y-auto kanban-column-content"><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200 border-l-4 border-[#ef4444]" onclick="openModal('progress')"><p class="font-bold text-sm text-gray-800 mb-2">Atualização de Segurança</p><p class="text-xs text-gray-500 mb-3">TI</p><div class="text-xs text-gray-400 mb-3">Iniciado em: 08/06/2025</div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-800">Crítica</span><div class="flex items-center text-xs text-gray-500"><i data-lucide="zap" class="h-3 w-3 mr-1.5 text-[#10b981]"></i> Ativo há 3 dias</div></div></div><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200" onclick="openModal('progress')"><p class="font-bold text-sm text-gray-800 mb-2">Otimização do Funil</p><p class="text-xs text-gray-500 mb-3">Vendas</p><div class="text-xs text-gray-400 mb-3">Iniciado em: 01/06/2025</div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-800">Alta</span><div class="flex items-center text-xs text-gray-500"><i data-lucide="zap" class="h-3 w-3 mr-1.5 text-[#10b981]"></i> Ativo há 10 dias</div></div></div></div></div>
+                <div class="bg-gray-200/60 rounded-xl flex flex-col h-[60vh]"><h3 class="font-bold text-gray-700 p-4 flex justify-between items-center border-b-4 border-gray-400"><span>Concluído</span><span class="bg-gray-300 text-gray-800 text-sm font-bold px-2.5 py-1 rounded-full">1</span></h3><div class="p-3 overflow-y-auto kanban-column-content"><div class="bg-white p-3.5 rounded-lg shadow-sm mb-4 cursor-pointer opacity-70" onclick="openModal('done')"><p class="font-bold text-sm text-gray-800 mb-2 line-through">Migração para Cloud AWS</p><p class="text-xs text-gray-500 mb-3">TI</p><div class="text-xs text-gray-400 mb-3">Concluído em: 30/05/2025</div><div class="flex justify-between items-center"><span class="text-xs font-semibold px-2 py-1 rounded-full bg-gray-200 text-gray-800">Concluído</span><div class="flex items-center text-xs text-gray-400"><i data-lucide="check-circle-2" class="h-3 w-3 mr-1 text-[#10b981]"></i></div></div></div></div></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- SEÇÃO 7: MODAL DE DETALHES DO PROJETO -->
+    <div id="projectModal" class="fixed inset-0 bg-black/60 flex justify-center items-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+      <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-3xl transform transition-transform duration-300 scale-95 overflow-y-auto max-h-[90vh]" id="modal-content-wrapper">
+        <div id="modal-content"><!-- Conteúdo dinâmico --></div>
+      </div>
+    </div>
+
+    <script>
+        // --- Paleta de Cores ---
+        const themeColors = {
+            primary: '#2563EB',
+            success: '#10B981',
+            warning: '#F59E0B',
+            error:   '#EF4444',
+            chart:   ['#2563EB', '#7C3AED', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#8B5CF6']
+        };
+
+        // Renderiza os ícones da biblioteca Lucide
+        lucide.createIcons();
+
+        // --- LÓGICA DO MODAL (sem alterações) ---
+        const modal = document.getElementById('projectModal');
+        const modalContent = document.getElementById('modal-content');
+        const projectData = {
+            ideation: { title: "Implementar IA para Suporte", stages: [{ name: "Criado", date: "26/05/2025", duration: "Há 16 dias", status: "current" }] },
+            analysis: { title: "Redesign da Página de Preços", stages: [{ name: "Criado", date: "10/05/2025", duration: "7 dias", status: "completed" }, { name: "Em Análise", date: "17/05/2025", duration: "Há 25 dias", status: "current" }] },
+            ready: { title: "Novo Módulo de Relatórios", leadTime: "40 dias", stages: [{ name: "Criado", date: "20/04/2025", duration: "40 dias", status: "completed" }, { name: "Em Análise", date: "N/A", duration: "", status: "skipped" }, { name: "Pronto para Execução", date: "30/05/2025", duration: "Na fila há 12 dias", status: "current" }] },
+            progress: { title: "Atualização de Segurança", leadTime: "15 dias", stages: [{ name: "Criado", date: "24/05/2025", duration: "10 dias", status: "completed" }, { name: "Em Análise", date: "03/06/2025", duration: "5 dias", status: "completed" }, { name: "Pronto para Execução", date: "08/06/2025", duration: "0 dias", status: "completed" }, { name: "Em Andamento", date: "08/06/2025", duration: "Ativo há 3 dias", status: "current" }] },
+            done: { title: "Migração para Cloud AWS", leadTime: "20 dias", executionTime: "10 dias", stages: [{ name: "Criado", date: "01/05/2025", duration: "10 dias", status: "completed" }, { name: "Em Análise", date: "11/05/2025", duration: "9 dias", status: "completed" }, { name: "Pronto para Execução", date: "20/05/2025", duration: "1 dia", status: "completed" }, { name: "Em Andamento", date: "21/05/2025", duration: "9 dias", status: "completed" }, { name: "Concluído", date: "30/05/2025", duration: "", status: "completed" }] }
+        };
+        function generateTimelineItem(stage) {
+            const statusClasses = { completed: { bg: 'bg-[#2563eb]', text: 'text-[#2563eb]', icon: 'check' }, current: { bg: 'bg-[#10b981]', text: 'text-[#10b981]', icon: 'play' }, future: { bg: 'bg-gray-300', text: 'text-gray-400', icon: 'circle' }, skipped: { bg: 'bg-gray-300', text: 'text-gray-400', icon: 'minus' } };
+            const classes = statusClasses[stage.status] || statusClasses.future;
+            return `<div class="flex items-start timeline-item"><div class="flex flex-col items-center mr-4"><div class="flex-shrink-0 w-6 h-6 rounded-full ${classes.bg} flex items-center justify-center text-white"><i data-lucide="${classes.icon}" class="w-3.5 h-3.5"></i></div><div class="w-px h-full ${stage.status === 'skipped' ? 'bg-gray-300 border-dashed' : classes.bg} timeline-line"></div></div><div class="pb-8"><p class="font-bold ${stage.status === 'current' ? classes.text : 'text-gray-800'}">${stage.name}</p><p class="text-sm text-gray-500">${stage.date}</p>${stage.duration ? `<p class="text-sm font-medium ${stage.status === 'current' ? classes.text : 'text-gray-600'}">${stage.duration}</p>` : ''}</div></div>`;
+        }
+        const allStages = ["Criado", "Em Análise", "Pronto para Execução", "Em Andamento", "Concluído"];
+        function openModal(type) {
+            const data = projectData[type] || projectData.ready;
+            const projectStages = data.stages.map(s => s.name);
+            const futureStages = allStages.filter(s => !projectStages.includes(s));
+            const timelineHtml = `${data.stages.map(generateTimelineItem).join('')}${futureStages.map(stageName => generateTimelineItem({name: stageName, date: 'Aguardando', duration: '', status: 'future'})).join('')}`;
+            const performanceMetricsHtml = `<div class="bg-gray-50 border border-gray-200 p-4 rounded-lg"><h4 class="font-semibold text-gray-800 text-sm mb-2 flex items-center"><i data-lucide="timer" class="h-4 w-4 mr-2"></i>Métricas de Performance</h4>${data.leadTime ? `<p class="text-gray-700"><span class="font-bold">Tempo de Análise (Ideação → Fila):</span> ${data.leadTime}</p>` : '<p class="text-sm text-gray-500">Métricas de tempo de ciclo serão calculadas quando o projeto avançar.</p>'}${data.executionTime ? `<p class="text-gray-700 mt-1"><span class="font-bold">Tempo de Execução (Fila → Conclusão):</span> ${data.executionTime}</p>` : ''}</div>`;
+            modalContent.innerHTML = `<div class="flex justify-between items-start mb-6"><div><h2 class="text-2xl font-bold text-gray-900">${data.title}</h2><div class="mt-2 flex items-center gap-4"><span class="text-sm font-semibold px-3 py-1 rounded-full bg-red-100 text-[#ef4444]">Crítica</span><span class="text-sm text-gray-600">Departamento: <span class="font-semibold text-gray-900">TI</span></span></div></div><button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="h-6 w-6"></i></button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="md:col-span-2"><div class="border-b border-gray-200 pb-6"><h3 class="text-lg font-semibold text-gray-800 mb-2">Descrição do JIRA</h3><p class="text-gray-600 text-sm">Esta é uma descrição de exemplo para a tarefa. A tarefa envolve a aplicação de patches de segurança críticos no servidor de produção, atualização de todas as dependências do sistema e a realização de um teste de penetração para validar as correções.</p></div><div class="mt-6"><h3 class="text-lg font-semibold text-gray-800 mb-4">Métricas Principais</h3>${performanceMetricsHtml}</div></div><div class="md:col-span-1 bg-gray-50 p-4 rounded-lg"><h3 class="text-lg font-semibold text-gray-800 mb-4">Linha do Tempo do Projeto</h3><div>${timelineHtml}</div></div></div>`;
+            lucide.createIcons();
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-content-wrapper').classList.remove('scale-95');
+        }
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            document.getElementById('modal-content-wrapper').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('pointer-events-none'), 300);
+        }
+        modal.addEventListener('click', (e) => { if (e.target.id === 'projectModal' || e.target.id === 'modal-content-wrapper') closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        // --- LÓGICA DOS GRÁFICOS ---
+        const deptCtx = document.getElementById('departmentChart').getContext('2d');
+        new Chart(deptCtx, {type: 'doughnut',data: {labels: ['TI', 'Marketing', 'Sucesso do Cliente', 'RH', 'Vendas'],datasets: [{label: 'Projetos por Dept.',data: [3, 2, 2, 1, 1],backgroundColor: themeColors.chart,borderColor: '#ffffff',borderWidth: 4}]},options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}});
+        
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {type: 'bar',data: {labels: ['Ideação', 'Em Análise', 'Na Fila', 'Em Andamento', 'Concluído'],datasets: [{label: 'Nº de Projetos',data: [2, 2, 2, 2, 1],backgroundColor: themeColors.chart.slice(0, 5),borderRadius: 6}]},options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}},scales: {y: {beginAtZero: true,ticks: {stepSize: 1}}}}});
+        
+        // NOVO GRÁFICO DE RADAR
+        const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+        new Chart(priorityCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Crítica', 'Alta', 'Média', 'Baixa'],
+                datasets: [{
+                    label: 'Nº de Projetos',
+                    data: [1, 3, 1, 1], // Valores baseados nos cards
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    borderColor: themeColors.primary,
+                    pointBackgroundColor: themeColors.primary,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: themeColors.primary
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            backdropColor: 'rgba(255, 255, 255, 0.75)',
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
